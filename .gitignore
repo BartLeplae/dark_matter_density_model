@@ -1,0 +1,32 @@
+# ==========================================
+# Python Artifacts
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==========================================
+# Visual Studio Code
+# ==========================================
+.vscode/
+*.code-workspace
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==========================================
+# Virtual Environments
+# ==========================================
+# (Note: We track environment.yml, but ignore actual local env folders)
+env/
+venv/
+.conda/
+.env
