@@ -97,6 +97,12 @@ In a typical star-forming spiral, the model demonstrates the "Disk-Halo Conspira
 In massive, bulge-dominated spirals, the visible mass is so dense that it forces the inner galaxy to rotate at >250 km/s via standard Newtonian gravity. The model correctly identifies that the inner region requires zero vacuum mass, only kicking in at the extreme outer edges.
 ![NGC 2841 Rotation Curve](galaxy_rotation_curves/NGC_2841_rotation_curves.png)
 
+#### 4. A virtual galaxy without matter: VIRTUAL
+cdsarc type data created through python script: create_virtual_galaxy.py 
+This represents a stable galaxy without matter.
+This indicates that galaxies have a natural tendency to evolve towards flat rotation curves
+![VIRTUAL Rotation Curve](galaxy_rotation_curves/VIRTUAL_rotation_curves.png)
+
 ## Getting Started
 
 ### Prerequisites
@@ -133,7 +139,10 @@ The script will automatically create a galaxy_rotation_curves/ folder and popula
 * cdsarc_152_157_table2.xlsx: the input file containing the mass models for 175 disk galaxies with [SPARC](https://cdsarc.cds.unistra.fr/ftp/J/AJ/152/157/ReadMe)
 * dark_matter_model_residuals.py: The core physics engine and plotting dashboard.
 * generate_rotation_curves.py: The batch processing script for generating individual, highly detailed rotation curves.
+* create_virtual_galaxy.py: Generates the input data (virtual_vacuum_galaxy.csv) for a galaxy without matter
+* generate_rotation_curves_virtual.py: A copy that points to the virtual galaxy
 * galaxies_to_generate.yml: The configuration file for the batch processor, allowing for dynamic parameter overrides (e.g., Mass-to-Light ratios) per galaxy.
+* virtual_galaxy_to_generate.yml: Same config file but just for the virtual galaxy
 * galaxy_rotation_curves: An auto-generated directory containing the output .png files from the batch processor.
 * environment.yml: Dependency management file for exact scientific reproducibility.
 * README.md: Project documentation.
