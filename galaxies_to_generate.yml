@@ -1,0 +1,51 @@
+# =============================================================================
+# Linear Shear Vacuum Model - Batch Configuration
+# =============================================================================
+
+# Define the input dataset
+data_file: "cdsarc_152_157_table2.xlsx"
+
+# Define the folder where the .png plots will be saved
+output_folder: "galaxy_rotation_curves"
+
+# List the galaxies you want to generate plots for
+# (Ensure the spelling matches the SPARC dataset)
+target_galaxies:
+  # --- THE "GOLDILOCKS" STANDARDS ---
+  - name: "NGC 2403"
+    description: "A high-fidelity spiral showcasing the seamless baryon-to-vacuum mass hand-off."
+  
+  - name: "NGC 3198"
+    description: "The historical benchmark spiral demonstrating a perfect textbook flat rotation curve."
+
+  - name: "NGC 6503"
+    description: "A standard star-forming spiral representing typical kinematic equilibrium."
+
+  # --- THE HIGH-MASS LIMIT ---
+  - name: "NGC 2841"
+    upsilon_disk: 0.8
+    upsilon_bulge: 1.1
+    description: "A massive HSB spiral dominated by visible mass via the Maximum Disk phenomenon."
+
+  - name: "NGC 7331"
+    upsilon_disk: 0.5
+    upsilon_bulge: 0.8
+    description: "A massive Milky Way twin with a steep central velocity rise and high terminal velocity."
+
+  - name: "NGC 5055"
+    upsilon_disk: 0.5
+    upsilon_bulge: 0.7
+    description: "The Sunflower Galaxy, featuring an extended high-mass rotation curve and standard Upsilon."
+  
+  # --- THE LOW-MASS (PURE VACUUM) LIMITS ---
+  - name: "UGC 00128"
+    upsilon_disk: 0.5 
+    hv_fixed: 25.0
+    description: "An extreme LSB galaxy requiring a thick, spherical vacuum geometry."
+
+  - name: "DDO 154"
+    description: "A gas-rich Dwarf Irregular galaxy representing a nearly pure vacuum-dominated environment."
+
+  - name: "IC 2574"
+    upsilon_disk: 0.2
+    description: "A gas-dominated Dwarf Irregular with a slow-rising curve, testing the vacuum fluid dynamics."

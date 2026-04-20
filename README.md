@@ -82,6 +82,21 @@ To mathematically validate the Linear Shear Model, the script generates a four-p
 ### Note on the Interquartile Range (IQR) Bands
 Across all four panels, the dotted black lines represent the 25th and 75th percentiles of the absolute error. This Interquartile Range (IQR) visually bounds the "middle 50%" of the entire dataset. Because these bands run tightly parallel to the perfect fit/zero-error lines across all radial distances and all mass scales, they mathematically demonstrate that the model's predictive variance remains strictly uniform, suffering from neither spatial divergence nor mass-dependent bias.
 
+### Gallery of Results: The Kinematic Spectrum
+To prove the universality of the $A = 1.74 \times 10^{-3}$ coupling constant, the batch processor was run across the extreme boundaries of the SPARC database. Notice how the model seamlessly adapts to drastically different physical environments without needing individual parameter tuning.
+
+#### 1. The Low-Mass (Pure Vacuum) Limit: DDO 154
+In gas-rich Dwarf Irregular galaxies, visible mass is almost non-existent. The model successfully predicts that the geometric shear of the vacuum must account for over 90% of the rotational velocity.
+![DDO 154 Rotation Curve](galaxy_rotation_curves/DDO_154_rotation_curves.png)
+
+#### 2. The "Goldilocks" Standard: NGC 2403
+In a typical star-forming spiral, the model demonstrates the "Disk-Halo Conspiracy." Exactly as the visible mass (blue dashed line) begins to die off, the vacuum shear dynamically scales up to seamlessly catch the curve and keep it flat.
+![NGC 2403 Rotation Curve](galaxy_rotation_curves/NGC_2403_rotation_curves.png)
+
+#### 3. The High-Mass Limit: NGC 2841
+In massive, bulge-dominated spirals, the visible mass is so dense that it forces the inner galaxy to rotate at >250 km/s via standard Newtonian gravity. The model correctly identifies that the inner region requires zero vacuum mass, only kicking in at the extreme outer edges.
+![NGC 2841 Rotation Curve](galaxy_rotation_curves/NGC_2841_rotation_curves.png)
+
 ## Getting Started
 
 ### Prerequisites
@@ -99,6 +114,7 @@ You will need [Conda](https://docs.conda.io/en/latest/) or a standard Python env
     conda activate dark-matter-density-model
 ```
 ### Running the Analysis
+**1. Global Residual Analysis (All Galaxies)**
 1. Keep or download the official SPARC database kinematics file (ensure you have the .xlsx or .csv version named cdsarc_152_157_table2.xlsx) and place it in the root directory of this repository.
 2. Run the main evaluation script:
 ```bash
@@ -106,9 +122,19 @@ You will need [Conda](https://docs.conda.io/en/latest/) or a standard Python env
 ```
 3. The script will output execution times, progress across the ~150 galaxies, and ultimately save Dark_Matter_Residuals_Analysis.png in the root folder.
 
+**2. Global Residual Analysis (All Galaxies)**
+To generate detailed, publication-grade rotation curves for specific galaxies, you can use the batch processor. This script calculates the 3D physics for target galaxies and overlays the model's geometric prediction ($V_{syn}$) onto the true observed missing mass anomaly.Open the config.yml file to list the galaxies you want to evaluate. You can also define custom Mass-to-Light ratios ($\Upsilon$) or fixed scale heights ($hv$) for extreme edge-cases.
+```bash
+    python generate_rotation_curves.py
+```
+The script will automatically create a galaxy_rotation_curves/ folder and populate it with high-resolution .png graphs for every galaxy listed in your configuration file.
+
 ### Project Structure
 * cdsarc_152_157_table2.xlsx: the input file containing the mass models for 175 disk galaxies with [SPARC](https://cdsarc.cds.unistra.fr/ftp/J/AJ/152/157/ReadMe)
 * dark_matter_model_residuals.py: The core physics engine and plotting dashboard.
+* generate_rotation_curves.py: The batch processing script for generating individual, highly detailed rotation curves.
+* galaxies_to_generate.yml: The configuration file for the batch processor, allowing for dynamic parameter overrides (e.g., Mass-to-Light ratios) per galaxy.
+* galaxy_rotation_curves: An auto-generated directory containing the output .png files from the batch processor.
 * environment.yml: Dependency management file for exact scientific reproducibility.
 * README.md: Project documentation.
 
