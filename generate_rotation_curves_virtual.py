@@ -1,11 +1,11 @@
 """
 =============================================================================
-Linear Shear Vacuum Model - 3D Batch Rotation Curve Generator
+Linear Shear Vacuum Model - Virtual 3D Rotation Curve Generator
 =============================================================================
 Features included:
-- Dynamic Mass-to-Light ratio overrides per galaxy via config.yml
-- Manual Scale-Height (hv_fixed) overrides for extreme LSBs
-- Bulletproof regex string matching to handle formatting errors in SPARC
+- Hardcoded virtual parameters (K, c, hv_fixed) driven by config.yml
+- Bulletproof regex string matching to handle formatting errors
+- Dynamic, all-inclusive parameter text box on generated plots
 =============================================================================
 """
 
@@ -14,7 +14,6 @@ import yaml
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import minimize_scalar
 import warnings
 import re
 
@@ -58,10 +57,14 @@ def evaluate_galaxy(hv: float, R_grid: np.ndarray, z_grid: np.ndarray,
 def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folder: str):
     galaxy_name = target_config['name']
     
-    # Extract dynamic parameters
+    # Extract dynamic parameters (Assuming K, c, and hv_fixed are ALWAYS present)
     u_disk = target_config.get('upsilon_disk', UPSILON_DISK)
     u_bulge = target_config.get('upsilon_bulge', UPSILON_BULGE)
-    description = target_config.get('description', 'Standard SPARC Galaxy')
+    description = target_config.get('description', 'Standard Virtual Galaxy')
+    
+    K_val = target_config['K']
+    c_val = target_config['c']
+    best_hv = float(target_config['hv_fixed'])
     
     df_target = df_target[df_target['Rad'] > 0.01].copy()
     df_target = df_target.sort_values(by='Rad').reset_index(drop=True)
@@ -116,23 +119,15 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
             kernels.append(np.zeros_like(R_3d))
             
     # =========================================================
-    # NATIVE OVERRIDE & OPTIMIZATION
+    # PHYSICS INTEGRATION (Using Forced hv)
     # =========================================================
-    if 'hv_fixed' in target_config:
-        best_hv = float(target_config['hv_fixed'])
-        print(f"  -> Manual Override: using hv = {best_hv} for {galaxy_name}")
-    else:
-        # Bounds expanded to 35 to allow organic spherical discovery
-        res = minimize_scalar(
-            lambda hv: evaluate_galaxy(hv, R_grid, z_grid, R_2d, z_2d, V_midplane, masks, kernels, R_obs, V_true)[0],
-            bounds=(1.0, 35.0), method='bounded'
-        )
-        best_hv = res.x
-    
+    print(f"  -> Using fixed hv = {best_hv} for {galaxy_name}")
     _, V_syn = evaluate_galaxy(best_hv, R_grid, z_grid, R_2d, z_2d, V_midplane, masks, kernels, R_obs, V_true)
     V_tot_predicted = np.sqrt(V_bar_sq + V_syn**2)
 
+    # =========================================================
     # PLOTTING
+    # =========================================================
     plt.figure(figsize=(12, 7))
     plt.plot(R_obs, V_obs, 'ko-', linewidth=2, label='Observed Total Velocity ($V_{obs}$)', markersize=6)
     plt.plot(R_obs, V_bar, 'b--', linewidth=2, label='Visible Matter Contribution ($V_{bar}$)')
@@ -141,22 +136,49 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
     plt.plot(R_obs, V_syn, 'm-.', linewidth=2.5, label=f'Model Predicted Vacuum Mass ($V_{{syn}}$)')
     plt.plot(R_obs, V_tot_predicted, 'g-', linewidth=3, alpha=0.7, label='Total Model Prediction ($V_{syn} + V_{bar}$)')
 
-    max_y = max(V_obs) * 1.3 
+    # Add extra space at the top so the curves don't hit the larger text box
+    max_y = max(V_obs) * 1.40 
     
     plt.title(f'{galaxy_name} 3D Rotation Curve Breakdown\nTesting the Linear Shear Vacuum Model', fontsize=16, fontweight='bold', pad=20)
     plt.xlabel('Radial Distance (kpc)', fontsize=14)
     plt.ylabel('Orbital Velocity (km/s)', fontsize=14)
     
-    context_text = (
-        f"{description}\n"
-        f"Optimized Disk Thickness ($hv$): {best_hv:.2f} kpc   |   "
-        f"Global Constant ($A$): {GLOBAL_A:.2e}   |   "
-        f"Mass-to-Light: $\\Upsilon_{{disk}}$={u_disk}, $\\Upsilon_{{bulge}}$={u_bulge}"
-    )
+    # =========================================================
+    # CALCULATE COSMOLOGICAL MASS & ENERGY
+    # =========================================================
+    # 1. Total Vacuum Energy (E = K^2 * c / G)
+    E_total = ((K_val**2) * c_val) / G
     
-    plt.text(0.5, 0.96, context_text, transform=plt.gca().transAxes, fontsize=11,
-             ha='center', va='top', bbox=dict(facecolor='white', alpha=0.95, edgecolor='lightgrey', boxstyle='round,pad=0.6'))
+    # 2. Apparent Missing Mass at R_max (M = V^2 * R / G)
+    # We use V_true to isolate only the dark matter / vacuum velocity requirement
+    M_missing_max_billions = ((V_true[-1]**2) * R_max / G) / 1e9
 
+# --- DYNAMIC PARAMETER BOX BUILDER ---
+    param_lines = [f"{description}"]
+    
+    # Line 2: Universal Physics (A stands alone)
+    physics_str = f"Vacuum-Shear Coupling Constant ($A$): {GLOBAL_A:.2e} (Kinematic-to-Mass Conversion)"
+    param_lines.append(physics_str)
+    
+    # Line 3: The Generation Variables & Geometry (Disk Thickness moved here)
+    gen_str = (
+        f"Terminal Velocity ($K$) = {K_val} km/s   |   "
+        f"Energy Scale ($c$) = {c_val} kpc$\\cdot$(km/s)$^2$   |   "
+        f"Disk Thickness ($hv$): {best_hv:.2f} kpc"
+    )
+    param_lines.append(gen_str)
+    
+    # Line 4: The Physical Consequences
+    cosmo_str = (
+        f"Total Vacuum Energy ($E = \\frac{{K^2 \\cdot c}}{{G}}$) = {E_total:.2e} $M_\\odot\\cdot$(km/s)$^2$   |   "
+        f"Apparent Missing Mass (at {R_max:.1f} kpc) = {M_missing_max_billions:.1f} Billion $M_\\odot$"
+    )
+    param_lines.append(cosmo_str)
+    
+    context_text = "\n".join(param_lines)
+    
+    plt.text(0.5, 0.98, context_text, transform=plt.gca().transAxes, fontsize=11,
+             ha='center', va='top', bbox=dict(facecolor='white', alpha=0.95, edgecolor='lightgrey', boxstyle='round,pad=0.6'))    
     plt.legend(loc='lower right', fontsize=11)
     plt.grid(True, alpha=0.3, linestyle='--')
     
@@ -169,20 +191,24 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
     plt.savefig(output_path, dpi=300)
     plt.close()
     
-    print(f"  -> Saved 3D plot for {galaxy_name} (hv = {best_hv:.2f} kpc): {output_path}")
+    print(f"  -> Saved 3D plot for {galaxy_name}: {output_path}")
 
 if __name__ == "__main__":
-    config = load_config('virtual_galaxy_to_generate.yml')
+    import sys
+    # Read the default config file, or allow passing one via command line
+    config_file = sys.argv[1] if len(sys.argv) > 1 else 'virtual_galaxies_to_generate.yml'
+    
+    config = load_config(config_file)
     if not config: exit()
         
-    data_file = config.get('data_file', 'virtual_vacuum_galaxy.csv')
-    output_folder = config.get('output_folder', 'galaxy_rotation_curves')
+    data_file = config.get('data_file', 'cdsarc_152_157_table2.xlsx')
+    output_folder = config.get('output_folder', 'Shear_Analysis_Plots')
     target_galaxies = config.get('target_galaxies', [])
     
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
         
-    print(f"Loading SPARC Database from {data_file}...")
+    print(f"Loading Dataset from {data_file}...")
     try:
         df_sparc = pd.read_excel(data_file) if data_file.endswith('.xlsx') else pd.read_csv(data_file)
     except FileNotFoundError:
@@ -191,14 +217,13 @@ if __name__ == "__main__":
         
     col_name = 'Name' if 'Name' in df_sparc.columns else 'Galaxy' if 'Galaxy' in df_sparc.columns else 'Galaxy identifier' if 'Galaxy identifier' in df_sparc.columns else None
     
-    df_sparc['Clean_Galaxy'] = df_sparc[col_name].astype(str).str.replace(r'\W+', '', regex=True).str.upper()
-
-    df_sparc = df_sparc.rename(columns={
-        'rad': 'Rad', 'vobs': 'Vobs', 'errv': 'errV', 
-        'vgas': 'Vgas', 'vdisk': 'Vdisk', 'vbulge': 'Vbulge'
-    })
-
-    print(f"Processing {len(target_galaxies)} galaxies via 3D Integration...")
+    if col_name:
+        df_sparc['Clean_Galaxy'] = df_sparc[col_name].astype(str).str.replace(r'\W+', '', regex=True).str.upper()
+    else:
+        print("Error: Could not identify Galaxy Name column.")
+        exit()
+    
+    print(f"Processing {len(target_galaxies)} virtual galaxies via 3D Integration...")
     for target in target_galaxies:
         target_config = {'name': target} if isinstance(target, str) else target
         target_name = target_config['name']

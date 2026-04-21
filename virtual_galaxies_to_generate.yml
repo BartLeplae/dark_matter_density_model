@@ -1,0 +1,29 @@
+# =============================================================================
+# Linear Shear Vacuum Model - Batch Configuration
+# =============================================================================
+
+# Define the input dataset (Target destination for the generator, Source for the analyzer)
+data_file: "virtual_vacuum_galaxies.csv"
+
+# Define the folder where the .png plots will be saved
+output_folder: "galaxy_rotation_curves"
+
+# List the galaxies you want to generate plots for
+target_galaxies:
+  - name: "VIRTUAL_GALAXY_HALO"
+    K: 150          # Terminal flat-line velocity (km/s)
+    c: 150000         # Rise scale parameter (Standard slow rise)
+    hv_fixed: 35.0  
+    description: "Standard Vacuum: Perfect equilibrium utilizing a spherical halo geometry."
+
+  - name: "VIRTUAL_GALAXY_COMPACT"
+    K: 150
+    c: 30000          # 5x steeper rise parameter
+    hv_fixed: 35.0  
+    description: "Compact Vacuum: Demonstrating a steep shear gradient reaching equilibrium rapidly."
+
+  - name: "VIRTUAL_GALAXY_DISK"
+    K: 150
+    c: 150000         # Identical rise to VIRTUAL_GALAXY_HALO
+    hv_fixed: 3.0  
+    description: "Collapsed Vacuum: Forced into a flat disk geometry."

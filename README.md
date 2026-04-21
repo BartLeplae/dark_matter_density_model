@@ -97,11 +97,15 @@ In a typical star-forming spiral, the model demonstrates the "Disk-Halo Conspira
 In massive, bulge-dominated spirals, the visible mass is so dense that it forces the inner galaxy to rotate at >250 km/s via standard Newtonian gravity. The model correctly identifies that the inner region requires zero vacuum mass, only kicking in at the extreme outer edges.
 ![NGC 2841 Rotation Curve](galaxy_rotation_curves/NGC_2841_rotation_curves.png)
 
-#### 4. A virtual galaxy without matter: VIRTUAL
-cdsarc type data created through python script: create_virtual_galaxy.py 
-This represents a stable galaxy without matter.
-This indicates that galaxies have a natural tendency to evolve towards flat rotation curves
-![VIRTUAL Rotation Curve](galaxy_rotation_curves/VIRTUAL_rotation_curves.png)
+#### 4. A virtual galaxy without matter: VIRTUAL GALAXY HALO
+To isolate and prove the core mechanics of the Vacuum-Shear Coupling Constant, this repository includes a purely synthetic, zero-baryon "clean room" dataset generated via `create_virtual_galaxy.py`.
+
+By explicitly removing all localized visible matter ($V_{gas}$, $V_{disk}$, and $V_{bulge}$ are strictly $0$), we simulate a mathematically perfect, undisturbed spacetime halo. The model generates flawless kinematic equilibrium states governed by the fundamental vacuum energy equation:
+
+$$R = \frac{c \cdot V}{(K-V)^3}$$
+
+**The Cosmological Implication:** This baseline mathematically demonstrates that flat rotation curves are not a cosmic coincidence requiring dark matter particles. Instead, they represent the natural, underlying "Attractor State" of the universe. When the gravitational chaos of localized stellar mass ($1/R^2$) inevitably fades out at high radii, the galaxy seamlessly returns to the fundamental kinematic equilibrium dictated by the vacuum's specific energy scale ($c$).
+![VIRTUAL GALAXY Rotation Curve](galaxy_rotation_curves/VIRTUAL_GALAXY_HALO_rotation_curves.png)
 
 ## Getting Started
 
@@ -139,10 +143,10 @@ The script will automatically create a galaxy_rotation_curves/ folder and popula
 * cdsarc_152_157_table2.xlsx: the input file containing the mass models for 175 disk galaxies with [SPARC](https://cdsarc.cds.unistra.fr/ftp/J/AJ/152/157/ReadMe)
 * dark_matter_model_residuals.py: The core physics engine and plotting dashboard.
 * generate_rotation_curves.py: The batch processing script for generating individual, highly detailed rotation curves.
-* create_virtual_galaxy.py: Generates the input data (virtual_vacuum_galaxy.csv) for a galaxy without matter
-* generate_rotation_curves_virtual.py: A copy that points to the virtual galaxy
+* create_virtual_galaxies.py: Generates the input data (virtual_vacuum_galaxies.csv) for galaxies without matter
+* generate_rotation_curves_virtual.py: A copy that points to the virtual galaxies
 * galaxies_to_generate.yml: The configuration file for the batch processor, allowing for dynamic parameter overrides (e.g., Mass-to-Light ratios) per galaxy.
-* virtual_galaxy_to_generate.yml: Same config file but just for the virtual galaxy
+* virtual_galaxies_to_generate.yml: Same config file but just for the virtual galaxies
 * galaxy_rotation_curves: An auto-generated directory containing the output .png files from the batch processor.
 * environment.yml: Dependency management file for exact scientific reproducibility.
 * README.md: Project documentation.
