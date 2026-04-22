@@ -7,7 +7,7 @@
 
 Traditional astrophysics relies on invisible "Dark Matter" halos or modified gravitational laws (MOND) to explain why galaxies rotate faster than their visible mass allows.
 
-**Hypothesis:** This repository tests a radically different alternative: The "missing mass" effect is an emergent property of the spacetime vacuum. Rather than adding invisible particles or tweaking Newton's equations, we propose that the effect is generated dynamically by the kinematic shear of space itself. In this model, the vacuum rotates in tandem with baryonic matter, eliminating the need for:
+**Hypothesis:** This repository tests a radically different alternative: The "missing mass" effect is an emergent property of the spacetime vacuum. Rather than adding invisible particles or tweaking Newton's equations, we propose that the effect is generated dynamically by the kinematic shear of space itself. A core assumption of this hypothesis is that, within the context of the galactic disk, the spacetime vacuum co-rotates at the same velocity as visible matter because it is subject to the same fundamental laws of gravity. In this model, the vacuum rotates in tandem with baryonic matter, eliminating the need for:
 
 * Dark Matter particles
 * Modified gravity models
@@ -29,7 +29,7 @@ This calculated $V_{true}$ represents the exact velocity curve that the Linear S
 
 ## The Universal Equation
 Instead of tuning independent halos, this model applies a single physical law to the entire [SPARC database](https://cdsarc.cds.unistra.fr/ftp/J/AJ/152/157/) (~150 galaxies). 
-Following an optimization across thousands of kinematic data points, this project discovered that galactic missing mass acts linearly and follows a strict universal constraint:
+Following an optimization across thousands of kinematic data points, this project hypothesizes that galactic missing mass acts linearly and appears to follow a strict universal constraint:
 
 $$\rho_{DM} = (1.74 \times 10^{-3}) \cdot \mathrm{Shear}$$
 
@@ -52,12 +52,12 @@ Because the runner on the inside lane has a much shorter distance to travel to c
 Galaxies operate on this exact same principle. Because galaxies exhibit "flat rotation curves," a star near the galactic center and a star near the outer rim are moving through space at roughly the same speed. The inner star completes its orbit much faster, causing the physical layers of the galaxy to constantly slide past one another. In this model, the immense kinetic energy of that sliding friction—the geometric shear of spacetime itself—is what generates the gravitational density we currently call "dark matter."
 
 ## From Density to Velocity: The 3D Integration
-To prove this linear equation matches observational reality, the provided Python script translates the local shear density back into the metric used by astronomers: rotational velocity ($V_{syn}$). It achieves this through a rigorous 3D spatial integration:
+To test whether this linear equation matches observational reality, the provided Python script translates the local shear density back into the metric used by astronomers: rotational velocity ($V_{syn}$). It achieves this through a rigorous 3D spatial integration:
 
 1. **The Spatial Density Field:** The script calculates the kinematic shear across a high-resolution 2D cylindrical grid ($R, z$) based on the visible disk. The shear is defined mathematically as:
    $$\mathrm{Shear} = \sqrt{(\partial\Omega/\partial R)^2 + (\partial\Omega/\partial z)^2}$$
    It then applies the universal constant to generate a volumetric "missing mass" density field ($\rho_{DM}$).
-2. **Newtonian Integration:** Because the shear-generated mass is distributed continuously throughout the galaxy, it cannot be treated as a point mass. The script calculates the exact gravitational inward pull ($a_{total}$) on a star at radius $R$ by integrating the force vectors from every discrete voxel ($dV$) in the 3D space surrounding it using standard Newtonian distance kernels.
+2. **Newtonian Integration:** Because the shear-generated mass is distributed continuously throughout the galaxy, it cannot be treated as a point mass. The script calculates the theoretical gravitational inward pull ($a_{total}$) on a star at radius $R$ by integrating the force vectors from every discrete voxel ($dV$) in the 3D space surrounding it using standard Newtonian distance kernels.
 3. **Kinematic Conversion:** Finally, using classical mechanics, the total inward gravitational acceleration is converted into the predicted circular orbital velocity required to keep the star stable: 
    $$V_{syn} = \sqrt{R \cdot a_{total}}$$
 
@@ -71,11 +71,11 @@ The script `dark_matter_model_residuals.py` calculates the 3D geometry and spati
 ### Interpreting the Residual Dashboard
 To mathematically validate the Linear Shear Model, the script generates a four-panel residual analysis across the entire SPARC dataset:
 
-* **Panel 1: Model Prediction vs. Observation (Scatter Fit)** This panel plots the model's synthetic velocity ($V_{syn}$) against the true missing mass velocity ($V_{true}$). A perfect physical model would fall exactly on the dashed 1:1 line. The data uses transparency to indicate density—the dark blue clustering along the diagonal proves that the scaling is globally accurate.
+* **Panel 1: Model Prediction vs. Observation (Scatter Fit)** This panel plots the model's synthetic velocity ($V_{syn}$) against the true missing mass velocity ($V_{true}$). A perfect physical model would fall exactly on the dashed 1:1 line. The data uses transparency to indicate density—the dark blue clustering along the diagonal suggests that the scaling is globally accurate.
 
-* **Panel 2: Spatial Distribution of Error (Radius Check)** This panel plots the absolute velocity error (km/s) against the radial distance from the galactic center. The log-scale x-axis visually expands the inner $0$ to $5$ kpc region. This plot shows a tightly balanced distribution centered exactly at $0$ km/s across all radii, proving the linear shear geometry naturally flat-cores without artificial mathematical tapers.
+* **Panel 2: Spatial Distribution of Error (Radius Check)** This panel plots the absolute velocity error (km/s) against the radial distance from the galactic center. The log-scale x-axis visually expands the inner $0$ to $5$ kpc region. This plot shows a tightly balanced distribution centered exactly at $0$ km/s across all radii, indicating the linear shear geometry naturally flat-cores without artificial mathematical tapers.
 
-* **Panel 3: Mass/Velocity Scale Distribution (Universality Check)** This panel plots the absolute velocity error against the observed true velocity ($V_{true}$) on a log scale. It answers a critical physics question: *Does the model fail for massive galaxies or dwarf galaxies?* Because the data forms a flat, horizontal band straddling the 0 km/s line across the entire spectrum ($10$ km/s to $300$ km/s), it proves the $1.74 \times 10^{-3}$ coupling constant is universal, requiring no mass-dependent tweaking.
+* **Panel 3: Mass/Velocity Scale Distribution (Universality Check)** This panel plots the absolute velocity error against the observed true velocity ($V_{true}$) on a log scale. It answers a critical physics question: *Does the model fail for massive galaxies or dwarf galaxies?* Because the data forms a flat, horizontal band straddling the 0 km/s line across the entire spectrum ($10$ km/s to $300$ km/s), it supports the hypothesis that the $1.74 \times 10^{-3}$ coupling constant is universal, requiring no mass-dependent tweaking.
 
 * **Panel 4: Global Absolute Error (Histogram)** This panel aggregates every data point across all ~150 galaxies into a single absolute error distribution. The result is a normally distributed bell curve with a **Median Error of just 0.3 km/s**.
 
@@ -104,7 +104,7 @@ By explicitly removing all localized visible matter ($V_{gas}$, $V_{disk}$, and 
 
 $$R = \frac{c \cdot V}{(K-V)^3}$$
 
-**The Cosmological Implication:** This baseline mathematically demonstrates that flat rotation curves are not a cosmic coincidence requiring dark matter particles. Instead, they represent the natural, underlying "Attractor State" of the universe. When the gravitational chaos of localized stellar mass ($1/R^2$) inevitably fades out at high radii, the galaxy seamlessly returns to the fundamental kinematic equilibrium dictated by the vacuum's specific energy scale ($c$).
+**The Cosmological Implication:** This baseline mathematically demonstrates how flat rotation curves could aris not as a cosmic coincidence requiring dark matter particles. Instead, they represent the natural, underlying "Attractor State" of the universe. When the gravitational chaos of localized stellar mass ($1/R^2$) inevitably fades out at high radii, the galaxy seamlessly returns to the fundamental kinematic equilibrium dictated by the vacuum's specific energy scale ($c$).
 ![VIRTUAL GALAXY Rotation Curve](galaxy_rotation_curves/VIRTUAL_GALAXY_HALO_rotation_curves.png)
 
 ## Getting Started
@@ -156,11 +156,11 @@ The standard astrophysical response to the galaxy rotation problem ($\Lambda$CDM
 
 This framework mathematically resolves the following three paradoxes of standard Dark Matter theory:
 
-1. **The Missing Mass Problem (Flat Rotation Curves):** Standard models require dark matter to explain why outer stars do not fly apart. This model proves that extra mass is not required. The apparent "missing mass" is simply a geometric illusion caused by the spatial energy gradient of the vacuum ($c/R$) enforcing a maximum terminal spin speed ($K$) on the galaxy. 
-2. **The "Disk-Halo Conspiracy" (Fine-Tuning):** Standard particle models require dark matter to magically fine-tune its distribution to seamlessly offset the declining gravity of visible stars, resulting in a flat curve. This model proves no conspiracy is needed. A flat rotation curve is simply the natural "Attractor State" of the spacetime vacuum. The visible galaxy is a localized gravitational disturbance; as its influence fades ($1/R^2$), the local kinematics seamlessly relax back into their baseline vacuum equilibrium.
-3. **The Core-Cusp Problem:** Standard dark matter simulations ($\Lambda$CDM) falsely predict that dark matter must form an infinitely dense "cusp" at the exact center of galaxies. The Linear Shear Vacuum Model naturally creates the observed smooth "cores." Because the vacuum density is strictly coupled to spatial shear ($\rho_{vac} \propto \text{Shear}$), and the innermost regions of galaxies typically exhibit solid-body rotation (where differential shear drops to zero), the model mathematically prevents the formation of infinite central density cusps.
+1. **The Missing Mass Problem (Flat Rotation Curves):** Standard models require dark matter to explain why outer stars do not fly apart. This model suggests that extra mass is not required. The apparent "missing mass" can be modelled as a geometric illusion caused by the spatial energy gradient of the vacuum ($c/R$) enforcing a maximum terminal spin speed ($K$) on the galaxy. 
+2. **The "Disk-Halo Conspiracy" (Fine-Tuning):** Standard particle models require dark matter to magically fine-tune its distribution to seamlessly offset the declining gravity of visible stars, resulting in a flat curve. This model argues no conspiracy is needed. A flat rotation curve is simply the natural "Attractor State" of the spacetime vacuum. The visible galaxy is a localized gravitational disturbance; as its influence fades ($1/R^2$), the local kinematics seamlessly relax back into their baseline vacuum equilibrium.
+3. **The Core-Cusp Problem:** Standard dark matter simulations ($\Lambda$CDM) falsely predict that dark matter must form an infinitely dense "cusp" at the exact center of galaxies. The Linear Shear Vacuum Model naturally creates the observed smooth "cores." Because the vacuum density is strictly coupled to spatial shear ($\rho_{vac} \propto \text{Shear}$), and the innermost regions of galaxies typically exhibit solid-body rotation (where differential shear drops to zero), the model mathematically avoids the formation of infinite central density cusps.
 
-**Conclusion:** Ultimately, this model suggests that "Dark Matter" is not a physical particle waiting to be discovered. It is a quantifiable, geometric energy gradient within the spacetime fabric itself, generating localized gravitational effects strictly when forced to rotate differentially.
+**Conclusion:** Ultimately, this model proposes that "Dark Matter" may not be a physical particle waiting to be discovered. It could instead be a quantifiable, geometric energy gradient within the spacetime fabric itself, generating localized gravitational effects strictly when forced to rotate differentially.
 
 ### Open Invitation for Review
 This repository is open-source, and the results are reproducible using the provided Python scripts and the public SPARC database. 

@@ -26,4 +26,4 @@ target_galaxies:
     K: 150
     c: 150000         # Identical rise to VIRTUAL_GALAXY_HALO
     hv_fixed: 3.0  
-    description: "Collapsed Vacuum: Forced into a flat disk geometry."
+    description: "Collapsed Vacuum: Forced into a flat disk geometry."f
