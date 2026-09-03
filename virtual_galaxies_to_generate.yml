@@ -26,4 +26,11 @@ target_galaxies:
     K: 150
     c: 150000         # Identical rise to VIRTUAL_GALAXY_HALO
     hv_fixed: 3.0  
-    description: "Collapsed Vacuum: Forced into a flat disk geometry."f
+    description: "Collapsed Vacuum: Forced into a flat disk geometry."
+  
+  - name: "VIRTUAL_GALAXY_PBH"
+    K: 250            
+    c: 5000           
+    hv_fixed: 35.0    
+    max_radius: 5.0   
+    description: "Compact Primordial Vacuum: Extreme density fluctuation generating a massive primordial gravitational well."
