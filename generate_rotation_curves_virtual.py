@@ -129,10 +129,12 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
     # PLOTTING
     # =========================================================
     plt.figure(figsize=(12, 7))
-    plt.plot(R_obs, V_obs, 'ko-', linewidth=2, label='Observed Total Velocity ($V_{obs}$)', markersize=6)
-    plt.plot(R_obs, V_bar, 'b--', linewidth=2, label='Visible Matter Contribution ($V_{bar}$)')
-    plt.fill_between(R_obs, V_bar, V_obs, color='crimson', alpha=0.15, label='The "Missing Mass" Anomaly')
     
+    # Plot the foundational curves without the anomaly shading
+    plt.plot(R_obs, V_obs, 'ko-', linewidth=2, label='Target Total Velocity ($V_{obs}$)', markersize=6)
+    plt.plot(R_obs, V_bar, 'b--', linewidth=2, label='Visible Matter Contribution ($V_{bar}$)')
+    
+    # Plot the model predictions
     plt.plot(R_obs, V_syn, 'm-.', linewidth=2.5, label=f'Model Predicted Vacuum Mass ($V_{{syn}}$)')
     plt.plot(R_obs, V_tot_predicted, 'g-', linewidth=3, alpha=0.7, label='Total Model Prediction ($V_{syn} + V_{bar}$)')
 
@@ -142,7 +144,7 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
     plt.title(f'{galaxy_name} 3D Rotation Curve Breakdown\nTesting the Linear Shear Vacuum Model', fontsize=16, fontweight='bold', pad=20)
     plt.xlabel('Radial Distance (kpc)', fontsize=14)
     plt.ylabel('Orbital Velocity (km/s)', fontsize=14)
-    
+
     # =========================================================
     # CALCULATE COSMOLOGICAL MASS & ENERGY
     # =========================================================

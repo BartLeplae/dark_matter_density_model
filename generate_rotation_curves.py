@@ -1,11 +1,12 @@
 """
 =============================================================================
-Linear Shear Vacuum Model - 3D Batch Rotation Curve Generator
+Linear Shear Vacuum Model - 3D Batch Rotation Curve Generator (V2)
 =============================================================================
 Features included:
 - Dynamic Mass-to-Light ratio overrides per galaxy via config.yml
 - Manual Scale-Height (hv_fixed) overrides for extreme LSBs
 - Bulletproof regex string matching to handle formatting errors in SPARC
+- NEW: Advanced 3D mass/energy integration (Kinematic, Shear, Pure Rotation)
 =============================================================================
 """
 
@@ -122,7 +123,6 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
         best_hv = float(target_config['hv_fixed'])
         print(f"  -> Manual Override: using hv = {best_hv} for {galaxy_name}")
     else:
-        # Bounds expanded to 35 to allow organic spherical discovery
         res = minimize_scalar(
             lambda hv: evaluate_galaxy(hv, R_grid, z_grid, R_2d, z_2d, V_midplane, masks, kernels, R_obs, V_true)[0],
             bounds=(1.0, 35.0), method='bounded'
@@ -132,7 +132,36 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
     _, V_syn = evaluate_galaxy(best_hv, R_grid, z_grid, R_2d, z_2d, V_midplane, masks, kernels, R_obs, V_true)
     V_tot_predicted = np.sqrt(V_bar_sq + V_syn**2)
 
+    # =========================================================
+    # CALCULATE MASS / ENERGY EQUIVALENTS (at R_max)
+    # =========================================================
+    # 1. Kinematic Required Energy (Classical Spherical Approximation: V^2*R/G)
+    M_missing_kinematic = ((V_true[-1]**2) * R_max / G) / 1e9
+
+    # 2. Volume-Integrated Vacuum Energy (Adding up the rotating layers via Shear)
+    V_2d = V_midplane * np.exp(-z_2d / best_hv)
+    Omega_2d = V_2d / R_2d
+    Shear_2d = np.sqrt(np.gradient(Omega_2d, R_grid, axis=0)**2 + np.gradient(Omega_2d, z_grid, axis=1)**2)
+    Rho_2d = GLOBAL_A * (Shear_2d ** GLOBAL_B)
+    Rho_2d[masks['outer']] *= masks['outer_taper']
+    Rho_2d[np.sqrt(R_2d**2 + z_2d**2) > masks['edge']] = 0.0
+    
+    dR = R_grid[1] - R_grid[0]
+    dz = z_grid[1] - z_grid[0]
+    dV_layer = 2 * np.pi * R_2d * dR * dz * 2.0 
+    
+    Rho_kpc = Rho_2d * 1e9
+    M_missing_integrated = np.sum(Rho_kpc * dV_layer) / 1e9 
+
+    # 3. Pure Rotation Energy (Gravitomagnetic equivalent mass in 3D)
+    Omega_2d_sq = (V_2d / R_2d)**2
+    Rho_rot_2d = Omega_2d_sq / (4 * np.pi * G) 
+    Rho_rot_2d[np.sqrt(R_2d**2 + z_2d**2) > masks['edge']] = 0.0
+    M_pure_rotation = np.sum(Rho_rot_2d * dV_layer) / 1e9 
+
+    # =========================================================
     # PLOTTING
+    # =========================================================
     plt.figure(figsize=(12, 7))
     plt.plot(R_obs, V_obs, 'ko-', linewidth=2, label='Observed Total Velocity ($V_{obs}$)', markersize=6)
     plt.plot(R_obs, V_bar, 'b--', linewidth=2, label='Visible Matter Contribution ($V_{bar}$)')
@@ -141,7 +170,8 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
     plt.plot(R_obs, V_syn, 'm-.', linewidth=2.5, label=f'Model Predicted Vacuum Mass ($V_{{syn}}$)')
     plt.plot(R_obs, V_tot_predicted, 'g-', linewidth=3, alpha=0.7, label='Total Model Prediction ($V_{syn} + V_{bar}$)')
 
-    max_y = max(V_obs) * 1.3 
+    # Verhoogde Y-as limiet om ruimte te maken voor de uitgebreide tekstbox
+    max_y = max(V_obs) * 1.50 
     
     plt.title(f'{galaxy_name} 3D Rotation Curve Breakdown\nTesting the Linear Shear Vacuum Model', fontsize=16, fontweight='bold', pad=20)
     plt.xlabel('Radial Distance (kpc)', fontsize=14)
@@ -151,10 +181,13 @@ def process_galaxy_3d(df_target: pd.DataFrame, target_config: dict, output_folde
         f"{description}\n"
         f"Optimized Disk Thickness ($hv$): {best_hv:.2f} kpc   |   "
         f"Global Constant ($A$): {GLOBAL_A:.2e}   |   "
-        f"Mass-to-Light: $\\Upsilon_{{disk}}$={u_disk}, $\\Upsilon_{{bulge}}$={u_bulge}"
+        f"Mass-to-Light: $\\Upsilon_{{disk}}$={u_disk}, $\\Upsilon_{{bulge}}$={u_bulge}\n"
+        f"Req. Kinematic Mass (Sphere): {M_missing_kinematic:.2f} Billion $M_\\odot$   |   "
+        f"Integrated Space Energy (Shear): {M_missing_integrated:.2f} Billion $M_\\odot$\n"
+        f"Integrated Pure Rotation (3D): {M_pure_rotation:.2f} Billion $M_\\odot$"
     )
     
-    plt.text(0.5, 0.96, context_text, transform=plt.gca().transAxes, fontsize=11,
+    plt.text(0.5, 0.98, context_text, transform=plt.gca().transAxes, fontsize=11,
              ha='center', va='top', bbox=dict(facecolor='white', alpha=0.95, edgecolor='lightgrey', boxstyle='round,pad=0.6'))
 
     plt.legend(loc='lower right', fontsize=11)
